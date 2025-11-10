@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Calculator.Models;
+using Calculator.Services;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Calculator.Data;
 
 
 namespace Calculator.Controllers;
@@ -9,10 +11,12 @@ namespace Calculator.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly ICalculatorService _calculatorService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, ICalculatorService calculatorService)
     {
         _logger = logger;
+        _calculatorService = calculatorService;
     }
 
     public IActionResult Index()
@@ -21,7 +25,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
-    public IActionResult Index(string value1, string value2, string operation)
+    public async Task<IActionResult> Index(string value1, string value2, string operation)
     {
         string? res = null;
         Console.WriteLine($"Я здесь: {value1} {value2} {operation}");
@@ -34,18 +38,27 @@ public class HomeController : Controller
         {
             res = "Неправильный ввод числа 2.";
         }
-        else switch (operation)
+        else
         {
-            case "Сложение": res = Convert.ToString(Models.Calculator.Sum(v1, v2)); break;
-            case "Вычитание": res = Convert.ToString(Models.Calculator.Minus(v1, v2)); break;
-            case "Умножение": res = Convert.ToString(Models.Calculator.Multiply(v1, v2)); break;
-            case "Деление": res = Convert.ToString(Models.Calculator.Division(v1, v2)); break;
+            try
+            {
+                var calculationResult = await _calculatorService.CalculateAsync(v1, v2, operation);
+            if (calculationResult.Success)
+                {
+                    res = $"Результат: {calculationResult.Result}";
+                }
+                else
+                {
+                    res = $"Ошибка: {calculationResult.ErrorMessage}";
+                }
+            }
+            catch (Exception ex)
+            {
+                res = $"Ошибка при расчете: {ex.Message}";
+                _logger.LogError(ex, "Ошибка в калькуляторе");
+            }
         }
 
-        if (string.IsNullOrEmpty(res))
-        {
-            res = "Ошибка при расчете. Смотрите логи в консоли приложения";
-        }
         return View((object?)res);
     }
 
