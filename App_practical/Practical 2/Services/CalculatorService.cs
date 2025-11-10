@@ -19,10 +19,10 @@ public class CalculatorService : ICalculatorService
         {
             double? result = operation.ToLower() switch
             {
-                "Сложение" or "add" or "sum" => Models.Calculator.Sum(a, b),
-                "Вычитание" or "subtract" or "minus" => Models.Calculator.Minus(a, b),
-                "Деление" or "divide" or "division" => Models.Calculator.Division(a, b),
-                "Умножение" or "multiply" => Models.Calculator.Multiply(a, b),
+                "сложение" or "add" or "sum" => Models.Calculator.Sum(a, b),
+                "вычитание" or "subtract" or "minus" => Models.Calculator.Minus(a, b),
+                "деление" or "divide" or "division" => Models.Calculator.Division(a, b),
+                "умножение" or "multiply" => Models.Calculator.Multiply(a, b),
                 _ => throw new ArgumentException($"Invalid operation: {operation}")
             };
 

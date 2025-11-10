@@ -1,4 +1,5 @@
-using CalculatorApp.Data;
+using Calculator.Data;
+using Calculator.Services;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<CalculatorContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+
+builder.Services.AddScoped<ICalculatorService, CalculatorService>();
 
 var app = builder.Build();
 
