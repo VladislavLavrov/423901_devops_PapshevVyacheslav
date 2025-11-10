@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: CalculatorDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  calculator-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: calculator_app
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=CalculatorDB;Username=postgres;Password=postgres
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8069:80"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
