@@ -13,6 +13,10 @@ RUN dotnet build "Calculator.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "Calculator.csproj" -c Release -o /app/publish
 
+FROM build AS migrations
+WORKDIR /src
+RUN dotnet ef database update --verbose
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

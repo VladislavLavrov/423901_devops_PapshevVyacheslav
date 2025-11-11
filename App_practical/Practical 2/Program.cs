@@ -24,6 +24,39 @@ builder.Services.AddScoped<ICalculatorService, CalculatorService>();
 
 var app = builder.Build();
 
+async Task WaitForDatabase(CalculatorContext context)
+{
+    for (int i = 0; i < 10; i++)
+    {
+        try
+        {
+            if (await context.Database.CanConnectAsync())
+            {
+                Console.WriteLine("✅ Database connected!");
+                return;
+            }
+        }
+        catch
+        {
+            Console.WriteLine($"⏳ Waiting for database... ({i + 1}/10)");
+            await Task.Delay(3000);
+        }
+    }
+    throw new Exception("Database not available");
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CalculatorContext>();
+
+    // Ждем БД
+    await WaitForDatabase(context);
+
+    // Автоматически создает таблицы на основе моделей
+    await context.Database.EnsureCreatedAsync();
+    Console.WriteLine("✅ Database tables created!");
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
