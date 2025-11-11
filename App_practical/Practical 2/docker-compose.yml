@@ -24,7 +24,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=CalculatorDB;Username=postgres;Password=postgres
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "8069:80"
+      - "5010:80"
     depends_on:
       - postgres
     networks:
