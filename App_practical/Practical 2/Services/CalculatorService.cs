@@ -13,6 +13,53 @@ public class CalculatorService : ICalculatorService
         _context = context;
     }
 
+    public async Task<bool> DeleteCalculationAsync(int id)
+    {
+        var history = await _context.CalculationHistories.FindAsync(id);
+        if (history != null)
+        {
+            _context.CalculationHistories.Remove(history);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        return false;
+    }
+
+    public async Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation)
+    {
+        try
+        {
+            var history = await _context.CalculationHistories.FindAsync(id);
+            if (history == null)
+            {
+                return new CalculationResult(null, false, "Запись не найдена");
+            }
+
+            double? result = operation.ToLower() switch
+            {
+                "сложение" => Models.Calculator.Sum(operand1, operand2),
+                "вычитание" => Models.Calculator.Minus(operand1, operand2),
+                "деление" => Models.Calculator.Division(operand1, operand2),
+                "умножение" => Models.Calculator.Multiply(operand1, operand2),
+                _ => throw new ArgumentException($"Недопустимая операция: {operation}")
+            };
+
+            history.Operand1 = operand1;
+            history.Operand2 = operand2;
+            history.Operation = operation;
+            history.Result = result;
+            history.CreatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return new CalculationResult(result, true);
+        }
+        catch (Exception ex)
+        {
+            return new CalculationResult(null, false, ex.Message);
+        }
+    }
+
     public async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
     {
         try

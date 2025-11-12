@@ -4,6 +4,7 @@ using Calculator.Models;
 using Calculator.Services;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Calculator.Data;
+using System.Threading.Tasks;
 
 
 namespace Calculator.Controllers;
@@ -22,6 +23,105 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         return View((object?)null);
+    }
+
+    public async Task<IActionResult> Database()
+    {
+        var result = await _calculatorService.GetHistoryAsync();
+        return View(result);
+    }
+
+
+    public async Task<IActionResult> Edit(int id)
+    {
+        try
+        {
+            var calculation = await _calculatorService.GetCalculationByIdAsync(id);
+            if (calculation == null)
+            {
+                TempData["ErrorMessage"] = "Запись не найдена!";
+                return RedirectToAction("Database");
+            }
+
+            return View(calculation);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при загрузке формы редактирования");
+            TempData["ErrorMessage"] = "Ошибка при загрузке данных для редактирования";
+            return RedirectToAction("Database");
+        }
+    }
+
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var calculation = await _calculatorService.GetCalculationByIdAsync(id);
+            if (calculation == null)
+            {
+                TempData["ErrorMessage"] = "Запись не найдена!";
+                return RedirectToAction("Database");
+            }
+
+            return View(calculation);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при загрузке формы удаления");
+            TempData["ErrorMessage"] = "Ошибка при загрузке данных для удаления";
+            return RedirectToAction("Database");
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteConfirm(int id)
+    {
+        try
+        {
+            var result = await _calculatorService.DeleteCalculationAsync(id);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Запись успешно удалена!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Запись не найдена!";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при удалении записи");
+            TempData["ErrorMessage"] = "Произошла ошибка при удалении записи";
+        }
+        
+        return RedirectToAction("Database");
+    }
+
+    // Метод для редактирования записи
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, double operand1, double operand2, string operation)
+    {
+        try
+        {
+            var result = await _calculatorService.UpdateCalculationAsync(id, operand1, operand2, operation);
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = "Запись успешно обновлена!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при редактировании записи");
+            TempData["ErrorMessage"] = "Произошла ошибка при обновлении записи";
+        }
+        
+        return RedirectToAction("Database");
     }
 
     [HttpPost]
