@@ -2,6 +2,7 @@ using Calculator.Data;
 using Calculator.Services;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Confluent.Kafka;
 
 
 
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHostedService<KafkaConsumerService>();
+builder.Services.AddSingleton<KafkaProducerHandler>();
+builder.Services.AddSingleton<KafkaProducerService<Null,string>>();
 // builder.Services.AddSwaggerGen();
 
 // Add services to the container.

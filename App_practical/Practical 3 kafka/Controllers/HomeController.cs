@@ -5,6 +5,7 @@ using Calculator.Services;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Calculator.Data;
 using System.Threading.Tasks;
+using Confluent.Kafka;
 
 
 namespace Calculator.Controllers;
@@ -13,11 +14,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ICalculatorService _calculatorService;
+    private readonly KafkaProducerService<Null,string> _producer;
 
-    public HomeController(ILogger<HomeController> logger, ICalculatorService calculatorService)
+    public HomeController(ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
     {
         _logger = logger;
         _calculatorService = calculatorService;
+        _producer = producer;
     }
 
     public IActionResult Index()
@@ -51,6 +54,12 @@ public class HomeController : Controller
             TempData["ErrorMessage"] = "Ошибка при загрузке данных для редактирования";
             return RedirectToAction("Database");
         }
+    }
+
+    private async Task SendDataToKafka(DataInputVariant dataInputVariant)
+    {
+        var json = JsonSerializer.Serialize(dataInputVariant);
+        await _producer.ProduceAsync("lavrov", newMessage<Null, string> { Value = json });
     }
 
 
@@ -95,7 +104,7 @@ public class HomeController : Controller
             _logger.LogError(ex, "Ошибка при удалении записи");
             TempData["ErrorMessage"] = "Произошла ошибка при удалении записи";
         }
-        
+
         return RedirectToAction("Database");
     }
 
@@ -120,7 +129,7 @@ public class HomeController : Controller
             _logger.LogError(ex, "Ошибка при редактировании записи");
             TempData["ErrorMessage"] = "Произошла ошибка при обновлении записи";
         }
-        
+
         return RedirectToAction("Database");
     }
 
@@ -143,7 +152,7 @@ public class HomeController : Controller
             try
             {
                 var calculationResult = await _calculatorService.CalculateAsync(v1, v2, operation);
-            if (calculationResult.Success)
+                if (calculationResult.Success)
                 {
                     res = $"Результат: {calculationResult.Result}";
                 }

@@ -7,6 +7,7 @@ namespace Calculator.Services;
 public class CalculatorService : ICalculatorService
 {
     private readonly CalculatorContext _context;
+    
 
     public CalculatorService(CalculatorContext context)
     {
