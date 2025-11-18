@@ -1,0 +1,91 @@
+@model CalculationHistory
+
+@{
+    ViewData["Title"] = "Удалить вычисление";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="text-center mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h4 class="alert-heading">Внимание!</h4>
+                        <p class="mb-0">Вы собираетесь удалить запись о вычислении. Это действие нельзя отменить.</p>
+                    </div>
+
+                    <!-- Детали записи -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Детали записи</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th>ID:</th>
+                                    <td>@Model.Id</td>
+                                </tr>
+                                <tr>
+                                    <th>Выражение:</th>
+                                    <td>
+                                        @Model.Operand1 @GetOperationSymbol(Model.Operation) @Model.Operand2
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Результат:</th>
+                                    <td>
+                                        @if (Model.Result.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">@Model.Result.Value</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">Ошибка</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Дата создания:</th>
+                                    <td>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th>Операция:</th>
+                                    <td><span class="badge bg-info">@Model.Operation</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <form method="post" action="@Url.Action("DeleteConfirm", "Home")">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Database", "Home")" class="btn btn-secondary me-md-2">Отмена</a>
+                            <button type="submit" class="btn btn-danger" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить эту запись?')">
+                                Удалить навсегда
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetOperationSymbol(string operation)
+    {
+        return operation switch
+        {
+            "Сложение" => "+",
+            "Вычитание" => "-",
+            "Умножение" => "×", 
+            "Деление" => "÷",
+            _ => "?"
+        };
+    }
+}
