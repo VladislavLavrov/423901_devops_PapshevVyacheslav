@@ -18,7 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http;
 
-
 namespace Calculator.Services
 {
 
@@ -28,8 +27,7 @@ namespace Calculator.Services
         private readonly IConsumer<Null, string> _kafkaConsumer;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpClientFactory _clientFactory;
-        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory
-        clientFactory)
+        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory clientFactory)
 
 
         {
@@ -60,21 +58,22 @@ namespace Calculator.Services
             {
                 try
                 {
+                    
                     var cr = _kafkaConsumer.Consume(cancellationToken);
                     var ip = cr.Message.Value;
                     // Исходные данные
                     var inputData = JsonSerializer.Deserialize<DataInputVariant>(cr.Message.Value);
                     // Выполнение расчета
-                    var result = CalculatorLibrary.CalculateOperation(inputData.Operand_1, inputData.Operand_2,
+                    
+                    var result = CalculatorService.CalculateAsync(inputData.Operand_1, inputData.Operand_2,
                     inputData.Type_operation);
                     inputData.Result = result.ToString();
                     var httpClient = _clientFactory.CreateClient();
                     // Заменить последние 2 цифры порта на порядковый номер из студенческого журнала.
                     // Например, порт 5012 соответствует номеру 12
-                    await httpClient.PostAsJsonAsync($"http://localhost:5015/Calculator/Callback", inputData);
+                    await httpClient.PostAsJsonAsync($"http://localhost:5010/Calculator/Callback", inputData);
                     // Обработка сообщения...
-                    Console.WriteLine($"Message key: {cr.
-                    Message.Key}, value: {cr.Message.Value}");
+                    Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
                 }
                 catch (OperationCanceledException)
                 {

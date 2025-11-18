@@ -26,7 +26,7 @@ public class CalculatorService : ICalculatorService
         return false;
     }
 
-    public async Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation)
+    public static async Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation)
     {
         try
         {
@@ -61,7 +61,7 @@ public class CalculatorService : ICalculatorService
         }
     }
 
-    public async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
+    public static async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
     {
         try
         {

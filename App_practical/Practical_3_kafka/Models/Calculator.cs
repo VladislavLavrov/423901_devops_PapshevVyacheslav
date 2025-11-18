@@ -8,7 +8,7 @@ public class Calculator
     {
         return a + b;
     }
-    [Display(Name = "Вычитание")]
+    // [Display(Name = "Вычитание")]
     public static double? Minus(double a, double b)
     {
 

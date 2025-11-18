@@ -7,6 +7,7 @@ using Confluent.Kafka;
 
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();

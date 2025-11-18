@@ -56,10 +56,10 @@ public class HomeController : Controller
         }
     }
 
-    private async Task SendDataToKafka(DataInputVariant dataInputVariant)
+    private async Task SendDataToKafka(CalculationHistory dataInputVariant)
     {
         var json = JsonSerializer.Serialize(dataInputVariant);
-        await _producer.ProduceAsync("lavrov", newMessage<Null, string> { Value = json });
+        await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
     }
 
 
