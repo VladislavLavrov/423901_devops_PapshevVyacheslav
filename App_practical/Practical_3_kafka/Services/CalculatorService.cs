@@ -61,7 +61,7 @@ public class CalculatorService : ICalculatorService
         }
     }
 
-    public static async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
+    public async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
     {
         try
         {

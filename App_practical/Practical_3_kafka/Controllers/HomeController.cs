@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Calculator.Data;
 using System.Threading.Tasks;
 using Confluent.Kafka;
+using System.Text.Json;
 
 
 namespace Calculator.Controllers;
@@ -14,7 +15,8 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ICalculatorService _calculatorService;
-    private readonly KafkaProducerService<Null,string> _producer;
+    private readonly KafkaProducerService<Null, string> _producer;
+    
 
     public HomeController(ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
     {
@@ -60,6 +62,13 @@ public class HomeController : Controller
     {
         var json = JsonSerializer.Serialize(dataInputVariant);
         await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
+    }
+
+    public IActionResult Callback([FromBody] Models.Calculator inputData)
+    {
+        SaveDataAndResult(inputData);
+
+        return Ok();
     }
 
 

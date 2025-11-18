@@ -20,16 +20,17 @@ using System.Net.Http;
 
 namespace Calculator.Services
 {
-
+    
+    
     public class KafkaConsumerService : BackgroundService
     {
         private readonly string _topic;
         private readonly IConsumer<Null, string> _kafkaConsumer;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpClientFactory _clientFactory;
-        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory clientFactory)
 
-
+        private readonly ICalculatorService _calculatorService;
+        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory clientFactory, ICalculatorService calculatorService)
         {
             // Конфигурирование настроек Kafka и инициализация компонентов
             var consumerConfig = new ConsumerConfig();
@@ -39,6 +40,7 @@ namespace Calculator.Services
             _kafkaConsumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
             _serviceProvider = serviceProvider;
             _clientFactory = clientFactory;
+            _calculatorService = calculatorService;
         }
         /// <summary>
         /// Выполнение работы Kafka Consumer’а.
@@ -58,20 +60,19 @@ namespace Calculator.Services
             {
                 try
                 {
-                    
+
                     var cr = _kafkaConsumer.Consume(cancellationToken);
                     var ip = cr.Message.Value;
                     // Исходные данные
-                    var inputData = JsonSerializer.Deserialize<DataInputVariant>(cr.Message.Value);
+                    var inputData = JsonSerializer.Deserialize<CalculationHistory>(cr.Message.Value);
                     // Выполнение расчета
                     
-                    var result = CalculatorService.CalculateAsync(inputData.Operand_1, inputData.Operand_2,
-                    inputData.Type_operation);
-                    inputData.Result = result.ToString();
+                    var result = await _calculatorService.CalculateAsync(inputData.Operand1, inputData.Operand2, inputData.Operation);
+                    inputData.Result = result.Result;
                     var httpClient = _clientFactory.CreateClient();
                     // Заменить последние 2 цифры порта на порядковый номер из студенческого журнала.
                     // Например, порт 5012 соответствует номеру 12
-                    await httpClient.PostAsJsonAsync($"http://localhost:5010/Calculator/Callback", inputData);
+                    await httpClient.PostAsJsonAsync($"http://localhost:5010/Home/Callback", inputData);
                     // Обработка сообщения...
                     Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
                 }
