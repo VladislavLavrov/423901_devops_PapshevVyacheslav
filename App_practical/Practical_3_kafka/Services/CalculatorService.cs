@@ -14,6 +14,12 @@ public class CalculatorService : ICalculatorService
         _context = context;
     }
 
+    public CalculatorContext GetContext {
+        get{
+            return _context;
+        } 
+    }
+
     public async Task<bool> DeleteCalculationAsync(int id)
     {
         var history = await _context.CalculationHistories.FindAsync(id);
@@ -26,7 +32,7 @@ public class CalculatorService : ICalculatorService
         return false;
     }
 
-    public static async Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation)
+    public async Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation)
     {
         try
         {

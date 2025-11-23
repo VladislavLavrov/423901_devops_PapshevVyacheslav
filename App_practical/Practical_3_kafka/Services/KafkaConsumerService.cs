@@ -29,8 +29,7 @@ namespace Calculator.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpClientFactory _clientFactory;
 
-        private readonly ICalculatorService _calculatorService;
-        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory clientFactory, ICalculatorService calculatorService)
+        public KafkaConsumerService(IConfiguration config, IServiceProvider serviceProvider, IHttpClientFactory clientFactory)
         {
             // Конфигурирование настроек Kafka и инициализация компонентов
             var consumerConfig = new ConsumerConfig();
@@ -40,7 +39,6 @@ namespace Calculator.Services
             _kafkaConsumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
             _serviceProvider = serviceProvider;
             _clientFactory = clientFactory;
-            _calculatorService = calculatorService;
         }
         /// <summary>
         /// Выполнение работы Kafka Consumer’а.
@@ -63,18 +61,23 @@ namespace Calculator.Services
 
                     var cr = _kafkaConsumer.Consume(cancellationToken);
                     var ip = cr.Message.Value;
-                    // Исходные данные
-                    var inputData = JsonSerializer.Deserialize<CalculationHistory>(cr.Message.Value);
-                    // Выполнение расчета
+
+                    using (var scope = _serviceProvider.CreateScope()){
+                        var calculatorService = scope.ServiceProvider.GetRequiredService<ICalculatorService>();
+                        // Исходные данные
+                        var inputData = JsonSerializer.Deserialize<CalculationHistory>(cr.Message.Value);
+                        // Выполнение расчета
+                        
+                        var result = await calculatorService.CalculateAsync(inputData.Operand1, inputData.Operand2, inputData.Operation);
+                        // Заменить последние 2 цифры порта на порядковый номер из студенческого журнала.
+                        // Например, порт 5012 соответствует номеру 12
+
+
+                        
+                        // Обработка сообщения...
+                        Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
+                    }
                     
-                    var result = await _calculatorService.CalculateAsync(inputData.Operand1, inputData.Operand2, inputData.Operation);
-                    inputData.Result = result.Result;
-                    var httpClient = _clientFactory.CreateClient();
-                    // Заменить последние 2 цифры порта на порядковый номер из студенческого журнала.
-                    // Например, порт 5012 соответствует номеру 12
-                    await httpClient.PostAsJsonAsync($"http://localhost:5010/Home/Callback", inputData);
-                    // Обработка сообщения...
-                    Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
                 }
                 catch (OperationCanceledException)
                 {

@@ -17,12 +17,14 @@ public class HomeController : Controller
     private readonly ICalculatorService _calculatorService;
     private readonly KafkaProducerService<Null, string> _producer;
     
+    
 
-    public HomeController(ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
+    public HomeController(CalculatorContext context, ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
     {
         _logger = logger;
         _calculatorService = calculatorService;
         _producer = producer;
+        
     }
 
     public IActionResult Index()
@@ -64,12 +66,12 @@ public class HomeController : Controller
         await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
     }
 
-    public IActionResult Callback([FromBody] Models.Calculator inputData)
-    {
-        SaveDataAndResult(inputData);
+    // public IActionResult Callback([FromBody] Models.Calculator inputData)
+    // {
+    //     SaveDataAndResult(inputData);
 
-        return Ok();
-    }
+    //     return Ok();
+    // }
 
 
     public async Task<IActionResult> Delete(int id)

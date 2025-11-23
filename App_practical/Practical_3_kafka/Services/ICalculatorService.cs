@@ -1,4 +1,5 @@
 using Calculator.Models;
+using Calculator.Data;
 
 namespace Calculator.Services;
 
@@ -9,6 +10,7 @@ public interface ICalculatorService
     Task<CalculationHistory?> GetCalculationByIdAsync(int id);
     Task<bool> DeleteCalculationAsync(int id);
     Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation);
+
 
 }
 
