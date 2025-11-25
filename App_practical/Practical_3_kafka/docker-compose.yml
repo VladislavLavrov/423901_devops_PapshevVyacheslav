@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: postgres_db
+    container_name: postgres_db_10
     environment:
       POSTGRES_DB: CalculatorDB
       POSTGRES_USER: postgres
