@@ -150,6 +150,15 @@ public class HomeController : Controller
         string? res = null;
         Console.WriteLine($"Я здесь: {value1} {value2} {operation}");
 
+        var dataInputVariant = new CalculationHistory
+        {
+            Operand1 = Convert.ToDouble(value1),
+            Operand2 = Convert.ToDouble(value2),
+            Operation = operation,
+        };
+
+        await SendDataToKafka(dataInputVariant);
+
         if (!double.TryParse(value1.Replace('.', ','), out double v1))
         {
             res = "Неправильный ввод числа 1.";
@@ -178,6 +187,8 @@ public class HomeController : Controller
                 _logger.LogError(ex, "Ошибка в калькуляторе");
             }
         }
+
+        
 
         return View((object?)res);
     }
