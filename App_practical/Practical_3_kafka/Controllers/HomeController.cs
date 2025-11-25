@@ -68,9 +68,9 @@ public class HomeController : Controller
 
     private CalculationHistory SaveDataAndResult(CalculationHistory inputData){
 
-        _calculatorService.GetContext.Add(inputData);
+        _calculatorService.SaveRecordToDatabase(inputData);
+
         
-        _calculatorService.GetContext.SaveChanges();
         return inputData;
     }
 

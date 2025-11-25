@@ -67,6 +67,13 @@ public class CalculatorService : ICalculatorService
         }
     }
 
+    public void SaveRecordToDatabase(CalculationHistory record)
+    {
+        _context.CalculationHistories.Add(record);
+        _context.SaveChanges();
+
+    }
+
     public async Task<CalculationResult> CalculateAsync(double a, double b, string operation)
     {
         try
@@ -88,8 +95,9 @@ public class CalculatorService : ICalculatorService
                 Result = result
             };
 
-            _context.CalculationHistories.Add(history);
-            await _context.SaveChangesAsync();
+
+            // _context.CalculationHistories.Add(history);
+            // await _context.SaveChangesAsync();
 
             return new CalculationResult(result, true);
         }
