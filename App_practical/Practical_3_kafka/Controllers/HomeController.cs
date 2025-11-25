@@ -63,7 +63,7 @@ public class HomeController : Controller
     private async Task SendDataToKafka(CalculationHistory dataInputVariant)
     {
         var json = JsonSerializer.Serialize(dataInputVariant);
-        await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
+        await _producer.ProduceAsync("papshev", new Message<Null, string> { Value = json });
     }
 
     private CalculationHistory SaveDataAndResult(CalculationHistory inputData){
@@ -165,8 +165,6 @@ public class HomeController : Controller
             Operation = operation,
         };
 
-        await SendDataToKafka(dataInputVariant);
-
         if (!double.TryParse(value1.Replace('.', ','), out double v1))
         {
             res = "Неправильный ввод числа 1.";
@@ -175,28 +173,13 @@ public class HomeController : Controller
         {
             res = "Неправильный ввод числа 2.";
         }
-        else
-        {
-            try
-            {
-                var calculationResult = await _calculatorService.CalculateAsync(v1, v2, operation);
-                if (calculationResult.Success)
-                {
-                    res = $"Результат: {calculationResult.Result}";
-                }
-                else
-                {
-                    res = $"Ошибка: {calculationResult.ErrorMessage}";
-                }
-            }
-            catch (Exception ex)
-            {
-                res = $"Ошибка при расчете: {ex.Message}";
-                _logger.LogError(ex, "Ошибка в калькуляторе");
-            }
-        }
 
-        
+
+        if (string.IsNullOrEmpty(res))
+        {
+            await SendDataToKafka(dataInputVariant);
+            return RedirectToAction("Database");
+        }
 
         return View((object?)res);
     }

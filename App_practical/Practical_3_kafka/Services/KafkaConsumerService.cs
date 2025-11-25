@@ -71,10 +71,10 @@ namespace Calculator.Services
                         var result = await calculatorService.CalculateAsync(inputData.Operand1, inputData.Operand2, inputData.Operation);
                         // Заменить последние 2 цифры порта на порядковый номер из студенческого журнала.
                         // Например, порт 5012 соответствует номеру 12
-
+                        inputData.Result = result.Result;
                         var httpClient = _clientFactory.CreateClient();
                         
-                        await httpClient.PostAsJsonAsync($"http://localhost:5015/Home/Callback", inputData);
+                        await httpClient.PostAsJsonAsync($"http://localhost:5010/Home/Callback", inputData);
                         // Обработка сообщения...
                         Console.WriteLine($"Message key: {cr.Message.Key}, value: {cr.Message.Value}");
                     }
