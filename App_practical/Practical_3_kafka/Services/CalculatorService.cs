@@ -17,7 +17,7 @@ public class CalculatorService : ICalculatorService
     public CalculatorContext GetContext {
         get{
             return _context;
-        } 
+        }
     }
 
     public async Task<bool> DeleteCalculationAsync(int id)

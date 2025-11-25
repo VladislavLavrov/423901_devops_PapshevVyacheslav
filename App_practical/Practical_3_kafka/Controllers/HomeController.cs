@@ -14,12 +14,12 @@ namespace Calculator.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ICalculatorService _calculatorService;
+    private readonly CalculatorService _calculatorService;
     private readonly KafkaProducerService<Null, string> _producer;
     
     
 
-    public HomeController(CalculatorContext context, ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
+    public HomeController(CalculatorContext context, ILogger<HomeController> logger, CalculatorService calculatorService, KafkaProducerService<Null, string> producer)
     {
         _logger = logger;
         _calculatorService = calculatorService;
@@ -66,12 +66,20 @@ public class HomeController : Controller
         await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
     }
 
-    // public IActionResult Callback([FromBody] Models.Calculator inputData)
-    // {
-    //     SaveDataAndResult(inputData);
+    private CalculationHistory SaveDataAndResult(CalculationHistory inputData){
 
-    //     return Ok();
-    // }
+        _calculatorService.GetContext.Add(inputData);
+        
+        _calculatorService.GetContext.SaveChanges();
+        return inputData;
+    }
+
+    public IActionResult Callback([FromBody] Models.CalculationHistory inputData)
+    {
+        SaveDataAndResult(inputData);
+
+        return Ok();
+    }
 
 
     public async Task<IActionResult> Delete(int id)

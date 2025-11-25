@@ -30,6 +30,7 @@ builder.Services.AddDbContext<CalculatorContext>(
 
 
 builder.Services.AddScoped<ICalculatorService, CalculatorService>();
+builder.Services.AddScoped<CalculatorService>();
 
 var app = builder.Build();
 

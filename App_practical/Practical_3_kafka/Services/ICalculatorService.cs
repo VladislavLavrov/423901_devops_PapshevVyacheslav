@@ -11,6 +11,8 @@ public interface ICalculatorService
     Task<bool> DeleteCalculationAsync(int id);
     Task<CalculationResult> UpdateCalculationAsync(int id, double operand1, double operand2, string operation);
 
+    
+
 
 }
 
