@@ -14,12 +14,12 @@ namespace Calculator.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ICalculatorService _calculatorService;
+    private readonly CalculatorService _calculatorService;
     private readonly KafkaProducerService<Null, string> _producer;
     
     
 
-    public HomeController(CalculatorContext context, ILogger<HomeController> logger, ICalculatorService calculatorService, KafkaProducerService<Null, string> producer)
+    public HomeController(CalculatorContext context, ILogger<HomeController> logger, CalculatorService calculatorService, KafkaProducerService<Null, string> producer)
     {
         _logger = logger;
         _calculatorService = calculatorService;
@@ -63,15 +63,23 @@ public class HomeController : Controller
     private async Task SendDataToKafka(CalculationHistory dataInputVariant)
     {
         var json = JsonSerializer.Serialize(dataInputVariant);
-        await _producer.ProduceAsync("10_calculator", new Message<Null, string> { Value = json });
+        await _producer.ProduceAsync("papshev", new Message<Null, string> { Value = json });
     }
 
-    // public IActionResult Callback([FromBody] Models.Calculator inputData)
-    // {
-    //     SaveDataAndResult(inputData);
+    private CalculationHistory SaveDataAndResult(CalculationHistory inputData){
 
-    //     return Ok();
-    // }
+        _calculatorService.SaveRecordToDatabase(inputData);
+
+        
+        return inputData;
+    }
+
+    public IActionResult Callback([FromBody] Models.CalculationHistory inputData)
+    {
+        SaveDataAndResult(inputData);
+
+        return Ok();
+    }
 
 
     public async Task<IActionResult> Delete(int id)
@@ -150,6 +158,13 @@ public class HomeController : Controller
         string? res = null;
         Console.WriteLine($"Я здесь: {value1} {value2} {operation}");
 
+        var dataInputVariant = new CalculationHistory
+        {
+            Operand1 = Convert.ToDouble(value1),
+            Operand2 = Convert.ToDouble(value2),
+            Operation = operation,
+        };
+
         if (!double.TryParse(value1.Replace('.', ','), out double v1))
         {
             res = "Неправильный ввод числа 1.";
@@ -158,25 +173,12 @@ public class HomeController : Controller
         {
             res = "Неправильный ввод числа 2.";
         }
-        else
+
+
+        if (string.IsNullOrEmpty(res))
         {
-            try
-            {
-                var calculationResult = await _calculatorService.CalculateAsync(v1, v2, operation);
-                if (calculationResult.Success)
-                {
-                    res = $"Результат: {calculationResult.Result}";
-                }
-                else
-                {
-                    res = $"Ошибка: {calculationResult.ErrorMessage}";
-                }
-            }
-            catch (Exception ex)
-            {
-                res = $"Ошибка при расчете: {ex.Message}";
-                _logger.LogError(ex, "Ошибка в калькуляторе");
-            }
+            await SendDataToKafka(dataInputVariant);
+            return RedirectToAction("Database");
         }
 
         return View((object?)res);
