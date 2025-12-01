@@ -1,0 +1,129 @@
+@model CalculationHistory
+
+@{
+    ViewData["Title"] = "Редактировать вычисление";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="text-center mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Информация о текущей записи -->
+                    <div class="alert alert-info">
+                        <h5>Текущие данные:</h5>
+                        <p><strong>ID:</strong> @Model.Id</p>
+                        <p><strong>Дата создания:</strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+                        <p><strong>Текущий результат:</strong> 
+                            @if (Model.Result.HasValue)
+                            {
+                                <span class="text-success fw-bold">@Model.Result.Value</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Ошибка при вычислении</span>
+                            }
+                        </p>
+                    </div>
+
+                    <form method="post" action="@Url.Action("Edit", "Home")">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="operand1" class="form-label">Первый операнд *</label>
+                                    <input type="number" step="any" class="form-control" id="operand1" 
+                                           name="operand1" value="@Model.Operand1.ToString("0.######")" required>
+                                    <div class="form-text">Введите число</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="operand2" class="form-label">Второй операнд *</label>
+                                    <input type="number" step="any" class="form-control" id="operand2" 
+                                           name="operand2" value="@Model.Operand2.ToString("0.######")" required>
+                                    <div class="form-text">Введите число</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="operation" class="form-label">Операция *</label>
+                            <select class="form-select" id="operation" name="operation" required>
+                                <option value="Сложение" selected="@(Model.Operation == "Сложение")">Сложение (+)</option>
+                                <option value="Вычитание" selected="@(Model.Operation == "Вычитание")">Вычитание (-)</option>
+                                <option value="Умножение" selected="@(Model.Operation == "Умножение")">Умножение (×)</option>
+                                <option value="Деление" selected="@(Model.Operation == "Деление")">Деление (÷)</option>
+                            </select>
+                            <div class="form-text">Выберите математическую операцию</div>
+                        </div>
+
+                        <!-- Предпросмотр результата -->
+                        <div class="mb-3 p-3 bg-light rounded">
+                            <h5>Предпросмотр:</h5>
+                            <div id="previewResult" class="fw-bold fs-5 text-primary">
+                                @Model.Operand1 @GetOperationSymbol(Model.Operation) @Model.Operand2 = 
+                                @if (Model.Result.HasValue)
+                                {
+                                    <span>@Model.Result.Value</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">Ошибка</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Database", "Home")" class="btn btn-secondary me-md-2">Отмена</a>
+                            <button type="submit" class="btn btn-warning">Сохранить изменения</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Динамический предпросмотр результата
+        function updatePreview() {
+            const operand1 = parseFloat(document.getElementById('operand1').value) || 0;
+            const operand2 = parseFloat(document.getElementById('operand2').value) || 0;
+            const operation = document.getElementById('operation').value;
+            
+            const symbols = {
+                'Сложение': '+',
+                'Вычитание': '-', 
+                'Умножение': '×',
+                'Деление': '÷'
+            };
+            
+            document.getElementById('previewResult').innerHTML = 
+                `${operand1} ${symbols[operation]} ${operand2} = ?`;
+        }
+
+        document.getElementById('operand1').addEventListener('input', updatePreview);
+        document.getElementById('operand2').addEventListener('input', updatePreview);
+        document.getElementById('operation').addEventListener('change', updatePreview);
+    </script>
+}
+
+@functions {
+    private string GetOperationSymbol(string operation)
+    {
+        return operation switch
+        {
+            "Сложение" => "+",
+            "Вычитание" => "-",
+            "Умножение" => "×", 
+            "Деление" => "÷",
+            _ => "?"
+        };
+    }
+}
