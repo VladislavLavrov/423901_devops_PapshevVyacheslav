@@ -11,20 +11,20 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /App_practical/Practical_4_jenkins/postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
 
   calculator-app:
     build: 
-      context: .
+      context: ./App_practical/Practical_4_jenkins
       dockerfile: Dockerfile
     container_name: calculator_app_10
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=CalculatorDB;Username=postgres;Password=postgres
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "5010:5010"
+      - "5210:5010"
     depends_on:
       - postgres
     networks:
