@@ -1,0 +1,23 @@
+global:
+ scrape_interval: 15s
+scrape_configs:
+ - job_name: 'my_app'
+ static_configs:
+ - targets: ['localhost:5010']
+
+# http_requests_total{method="post", handler="/api/v1/users"} 1027
+# http_request_duration_seconds_bucket{le="0.1", method="post",handler="/api/v1/users"} 2400
+# http_request_duration_seconds_bucket{le="0.2", method="post",handler="/api/v1/users"} 3000
+# http_request_duration_seconds_sum{method="post", handler="/api/v1/users"} 5000
+
+groups:
+- name: example_alert
+ rules:
+ - alert: HighRequestLatency
+ expr: http_request_duration_seconds_sum / http_request_duration_seconds_count > 0.5
+ for: 5m
+ labels:
+ severity: critical
+ annotations:
+ summary: "High request latency detected"
+ description: "The request latency is above 0.5 seconds for more than 5 minutes."
