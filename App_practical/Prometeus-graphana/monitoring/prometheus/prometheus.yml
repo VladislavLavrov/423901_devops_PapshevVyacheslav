@@ -1,0 +1,49 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'aspnetcore-monitor'
+
+# Правила алертинга
+rule_files:
+  - "alert.rules.yml"
+
+# Конфигурация сбора метрик
+scrape_configs:
+  # 1. ASP.NET Core приложение
+  - job_name: 'aspnetcore-calculator'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['calculator-app:80']
+        labels:
+          app: 'calculator'
+          environment: 'development'
+          service: 'calculator-app'
+
+  # 2. Prometheus сам себя
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # 3. Node Exporter (системные метрики)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+
+  # 4. cAdvisor (метрики контейнеров)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
+
+  # 5. Postgres Exporter (опционально, нужно установить отдельно)
+  # - job_name: 'postgres-exporter'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']

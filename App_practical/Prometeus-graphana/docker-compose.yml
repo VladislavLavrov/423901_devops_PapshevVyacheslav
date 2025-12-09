@@ -23,15 +23,71 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=CalculatorDB;Username=postgres;Password=postgres
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:5010
     ports:
-      - "5010:80"
+      - "5010:5010"
     depends_on:
       - postgres
     networks:
       - app-network
 
+    # 3. Prometheus (сбор метрик)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    user: "root"  # Для упрощения прав доступа
+    volumes:
+      # Конфигурация Prometheus
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # Папка для правил алертинга (опционально)
+      - ./monitoring/prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+      # Данные Prometheus
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"  # Web UI Prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-admin-api'
+      - '--web.enable-lifecycle'
+    networks:
+      - app-network
+    depends_on:
+      - calculator-app
+    restart: unless-stopped
+
+  # 4. Grafana (визуализация метрик)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: "root"
+    volumes:
+      # Данные Grafana
+      - grafana_data:/var/lib/grafana
+      # Автоматическая настройка источников данных и дашбордов
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      # Кастомные дашборды
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      # Автоматическая настройка Prometheus как источника данных
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    ports:
+      - "3000:3000"  # Web UI Grafana
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   app-network:

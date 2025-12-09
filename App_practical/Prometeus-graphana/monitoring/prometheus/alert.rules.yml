@@ -1,0 +1,98 @@
+groups:
+  - name: calculator_alerts
+    rules:
+      - alert: CalculatorServiceDown
+        expr: up{job="aspnetcore-calculator"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: devops
+        annotations:
+          summary: "Калькулятор недоступен"
+          description: "Сервис калькулятора не отвечает более 30 секунд. Проверьте контейнер."
+          runbook_url: "https://wiki.example.com/runbooks/calculator-down"
+          
+      - alert: HighCalculatorErrorRate
+        expr: |
+          (
+            sum(rate(calculator_requests_total{status=~"input_error|calculation_error|exception"}[5m]))
+            /
+            sum(rate(calculator_requests_total[5m]))
+          ) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Высокий процент ошибок в калькуляторе"
+          description: "Более 10% запросов к калькулятору завершаются с ошибкой. Текущий уровень: {{ $value | humanizePercentage }}"
+          
+      - alert: SlowCalculations
+        expr: histogram_quantile(0.95, rate(calculator_request_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          team: performance
+        annotations:
+          summary: "Медленные вычисления"
+          description: "95-й процентиль времени вычислений превышает 1 секунду. Текущее значение: {{ $value }}s"
+          
+      - alert: HighConcurrentCalculations
+        expr: calculator_active_calculations > 5
+        for: 1m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Высокая одновременная нагрузка"
+          description: "Более 5 параллельных вычислений. Текущее значение: {{ $value }}"
+          
+      - alert: DatabaseErrors
+        expr: rate(calculator_database_operations_total{status="error"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Ошибки при работе с базой данных"
+          description: "Более 0.1 ошибок в секунду при операциях с БД"
+          
+      - alert: LowTraffic
+        expr: rate(calculator_requests_total[10m]) < 0.01
+        for: 5m
+        labels:
+          severity: info
+          team: monitoring
+        annotations:
+          summary: "Низкая активность калькулятора"
+          description: "Менее 0.01 запросов в секунду за последние 10 минут"
+          
+      - alert: DivisionByZeroAlert
+        expr: rate(calculator_error_operations_total{error_type="calculation", operation="divide"}[2m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Обнаружено деление на ноль"
+          description: "Пользователь пытается разделить на ноль. Количество ошибок: {{ $value }}"
+          
+      - alert: HighMemoryUsage
+        expr: process_working_set_bytes / 1024 / 1024 > 200
+        for: 3m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Высокое использование памяти"
+          description: "Приложение использует более 200MB памяти. Текущее значение: {{ $value | humanize }}MB"
+          
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) * 100 > 80
+        for: 3m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Высокая нагрузка на CPU"
+          description: "Использование CPU превышает 80%. Текущее значение: {{ $value | humanize }}%"
