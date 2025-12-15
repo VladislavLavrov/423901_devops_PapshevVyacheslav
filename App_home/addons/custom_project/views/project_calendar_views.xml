@@ -20,43 +20,7 @@
         </field>
     </record>
 
-    <!-- Действие: открыть форму планирования -->
-    <record id="action_open_custom_task_form2" model="ir.actions.act_window">
-        <field name="name">Планирование производства</field>
-        <field name="res_model">project.task</field>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_task_form2_inherit"/>
-        <field name="target">new</field>
-    </record>
-
-    <!-- Форма календаря — кнопки планирования -->
-    <record id="view_task_calendar_form_my" model="ir.ui.view">
-        <field name="name">project.task.calendar.form.metallurgy</field>
-        <field name="model">project.task</field>
-        <field name="priority">1</field>
-        <field name="type">form</field>
-        <field name="arch" type="xml">
-            <form string="Планирование производства">
-                <field name="company_id" invisible="1"/>
-                <header>
-                    <button name="fill_month_schedule" string="Основной цикл" type="object" context="{'main': True}"/>
-                    <button name="fill_month_schedule" string="Техническое обслуживание" type="object" context="{'main': False}"/>
-                    <button name="action_delete_series" string="Удалить всю серию" type="object"/>
-                </header>
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="date_start" string="Дата начала"/>
-                            <field name="project_id" string="Цех / Линия"/>
-                            <field name="from_cycle_number" string="Начать с цикла"/>
-                            <field name="cycle_numbers" string="Количество циклов"/>
-                            <field name="production_days" string="Дни непрерывного производства"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+   
 
     <!-- Календарь задач -->
     <record id="view_task_calendar_custom" model="ir.ui.view">
@@ -83,7 +47,6 @@
                 <field name="priority"/>
                 <field name="stage_id"/>
                 <field name="date_deadline"/>
-                <field name="shift_type" invisible="1"/>
             </calendar>
         </field>
     </record>

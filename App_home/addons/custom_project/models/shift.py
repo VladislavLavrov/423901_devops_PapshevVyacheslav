@@ -1,7 +1,7 @@
 from odoo import fields, models
 
-class MetallurgyShift(models.Model):
-    _name = "metallurgy.shift"
+class custom_projectShift(models.Model):
+    _name = "custom_project.shift"
     _description = "Производственные смены металлургического комбината"
     
     name = fields.Char(string="Наименование смены", required=True)

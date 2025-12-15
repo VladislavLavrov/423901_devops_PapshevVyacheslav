@@ -143,105 +143,44 @@ class TaskSeriesWizard(models.TransientModel):
             if wizard.date_start < fields.Date.context_today(self):
                 raise ValidationError(_("Дата начала не может быть в прошлом"))
 
+    # В models/production_planner_wizard.py (или вашем TaskSeriesWizard)
+
     def action_create_series(self):
-        """Создание производственного расписания"""
         self.ensure_one()
 
+        # Создаём расписание
+        schedule = self.env["task.schedule"].create({
+            "name": f"Расписание {self.project_id.name} от {self.date_start}",
+            "project_id": self.project_id.id,
+            "process_type": self.process_type,
+            "start_shift": self.start_shift_number,
+            "shift_count": self.shift_count,
+            "equipment_maintenance_days": self.equipment_maintenance_days,
+            "date_start": self.date_start,
+        })
+
+        # Делегируем генерацию задач
         try:
-            # Создаем расписание
-            schedule = self.env["task.schedule"].create({
-                "name": f"Расписание {self.project_id.name} - {self.date_start}",
-                "project_id": self.project_id.id,
-                "start_shift": self.start_shift_number,
-                "shift_count": self.shift_count,
-                "equipment_maintenance_days": self.equipment_maintenance_days,
-                "process_type": self.process_type,
-                "date_start": self.date_start,
-            })
-
-            # Создаем задачи на основе шаблонов
-            templates = self.env["task.schedule.template"].search([
-                ("process_type", "in", self._get_process_types()),
-                ("active", "=", True),
-            ]).sorted("sequence")
-
-            task_vals_list = []
-            current_date = fields.Datetime.to_datetime(self.date_start)
-            
-            for shift_num in range(int(self.start_shift_number), 
-                                  int(self.start_shift_number) + int(self.shift_count)):
-                
-                shift_code = self._get_shift_code(shift_num)
-                shift = self.env["metallurgy.shift"].search([("code", "=", shift_code)], limit=1)
-                
-                if not shift:
-                    continue
-
-                for template in templates:
-                    # Настраиваем дату для конкретной смены
-                    task_date = current_date.replace(
-                        hour=shift.start_hour,
-                        minute=0,
-                        second=0,
-                        microsecond=0
-                    )
-                    
-                    # Создаем задачу
-                    task_vals = {
-                        "name": f"{template.task_type_id.name} - Смена {shift_num}",
-                        "project_id": self.project_id.id,
-                        "schedule_id": schedule.id,
-                        "process_type": template.process_type,
-                        "shift_number": str(shift_num),
-                        "date_start": task_date,
-                        "shift": shift.id,
-                        "custom_task_type_id": template.task_type_id.id,
-                        "planning_series_datetime": fields.Datetime.now(),
-                    }
-                    
-                    # Добавляем дни ТО оборудования
-                    if self.equipment_maintenance_days > 0:
-                        task_vals.update({
-                            "maintenance_day": shift_num,
-                        })
-                    
-                    task_vals_list.append(task_vals)
-                
-                # Переход к следующей смене
-                current_date += timedelta(hours=8)  # 8-часовая смена
-
-            # Массовое создание задач
-            if task_vals_list:
-                tasks = self.env["project.task"].create(task_vals_list)
-                
-                return {
-                    "type": "ir.actions.client",
-                    "tag": "display_notification",
-                    "params": {
-                        "title": _("Успех!"),
-                        "message": _(
-                            "Производственное расписание успешно создано!\n"
-                            "Создано расписание: %s\n"
-                            "Добавлено работ: %s"
-                        ) % (schedule.name, len(tasks)),
-                        "type": "success",
-                        "sticky": False,
-                        "next": {
-                            "type": "ir.actions.act_window",
-                            "res_model": "task.schedule",
-                            "res_id": schedule.id,
-                            "views": [(False, "form")],
-                            "target": "current",
-                        },
-                    },
-                }
-
+            schedule.action_generate_tasks()
         except Exception as e:
-            _logger.error("Ошибка при создании производственного расписания", exc_info=True)
-            raise ValidationError(_(
-                "Ошибка при создании расписания: %s\n"
-                "Проверьте параметры и попробуйте снова."
-            ) % str(e))
+            raise ValidationError(_("Ошибка при генерации задач: %s") % str(e))
+
+        # Возвращаем уведомление и открываем расписание
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Готово!"),
+                "message": _("Создано расписание с %s задачами.") % schedule.project_task_ids,
+                "type": "success",
+                "next": {
+                    "type": "ir.actions.act_window",
+                    "res_model": "task.schedule",
+                    "res_id": schedule.id,
+                    "views": [(False, "form")],
+                },
+            },
+        }
 
     def _get_process_types(self):
         """Получение типов процессов для фильтрации шаблонов"""

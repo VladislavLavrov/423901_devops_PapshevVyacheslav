@@ -1,4 +1,6 @@
 from odoo import fields, models
+from datetime import timedelta
+from odoo.exceptions import UserError
 
 
 class TaskSchedule(models.Model):
@@ -77,3 +79,79 @@ class TaskSchedule(models.Model):
                 "next": {"type": "ir.actions.client", "tag": "reload"},
             },
         }
+
+
+    # В models/task_schedule.py
+
+    def action_generate_tasks(self):
+        """Генерация задач из шаблонов расписания"""
+        self.ensure_one()
+
+        if not self.date_start:
+            raise UserError("Укажите дату начала расписания!")
+
+        # Определяем типы процессов для выборки шаблонов
+        if self.process_type == "both":
+            process_types = ["main", "parallel"]
+        else:
+            process_types = [self.process_type]
+
+        templates = self.env["task.schedule.template"].search([
+            ("process_type", "in", process_types),
+            ("active", "=", True),
+        ]).sorted("sequence")
+
+        if not templates:
+            raise UserError("Не найдено активных шаблонов для указанных типов процессов!")
+
+        task_vals_list = []
+        current_datetime = fields.Datetime.to_datetime(self.date_start)
+
+        # Получаем все смены
+        shifts = self.env["custom_project.shift"].search([], order="start_hour")
+        shift_cycle = shifts  # [morning, day, night]
+
+        total_shifts = int(self.shift_count)
+        start_index = int(self.start_shift) - 1  # 0-based
+
+        for i in range(total_shifts):
+            # Определяем текущую смену по циклу
+            shift_index = (start_index + i) % len(shift_cycle)
+            shift = shift_cycle[shift_index]
+
+            # Корректируем дату: каждая смена — +8 часов
+            if i == 0:
+                # Первая смена начинается в start_hour текущей даты
+                task_start = current_datetime.replace(
+                    hour=shift.start_hour, minute=0, second=0, microsecond=0
+                )
+            else:
+                task_start = current_datetime + timedelta(hours=8 * i)
+
+            # Для ночной смены, начинающейся в 22:00, следующий день начинается утром
+            # Но для простоты оставим линейное приращение
+
+            for template in templates.filtered(lambda t: t.process_type in process_types and t.shift.id == shift.id):
+                task_vals = {
+                    "name": template.task_type_id.name,
+                    "project_id": self.project_id.id,
+                    "schedule_id": self.id,
+                    "process_type": template.process_type,
+                    "shift": shift.id,
+                    "date_start": task_start,
+                    "custom_task_type_id": template.task_type_id.id,
+                    "planning_series_datetime": fields.Datetime.now(),
+                    "shift_number": str(i + int(self.start_shift)),
+                    "stage_id": self.env.ref("custom_project.project_task_stage_planned").id,
+                }
+
+                # Если указаны дни ТО
+                if self.equipment_maintenance_days > 0:
+                    task_vals["maintenance_day"] = i + 1  # или другая логика
+
+                task_vals_list.append(task_vals)
+
+        if task_vals_list:
+            self.env["project.task"].create(task_vals_list)
+
+        return True

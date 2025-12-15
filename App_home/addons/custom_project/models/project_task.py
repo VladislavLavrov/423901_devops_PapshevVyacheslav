@@ -59,7 +59,7 @@ class ProjectTask(models.Model):
     )
 
     shift = fields.Many2one(
-        "metallurgy.shift", string="Смена"
+        "custom_project.shift", string="Смена"
     )
 
     shift_code = fields.Char(
@@ -70,9 +70,9 @@ class ProjectTask(models.Model):
 
     production_cycle = fields.Char(string="Производственный цикл", compute="_compute_production_cycle")
 
-    # custom_task_type_id = fields.Many2one(
-    #     "project.task.type.custom", string="Тип работы"
-    # )
+    custom_task_type_id = fields.Many2one(
+        "project.task.type.custom", string="Тип работы"
+    )
 
     actual_start_time = fields.Datetime(string="Фактическое время начала")
     actual_end_time = fields.Datetime(string="Фактическое время завершения")
@@ -143,7 +143,7 @@ class ProjectTask(models.Model):
             [
                 ("date_start", ">=", today_start),
                 ("date_start", "<=", today_end),
-                ("stage_id", "=", self.env.ref("metallurgy.project_task_stage_planned").id),
+                ("stage_id", "=", self.env.ref("custom_project.project_task_stage_planned").id),
                 ("auto_tracking", "=", True),
             ]
         )
@@ -165,7 +165,7 @@ class ProjectTask(models.Model):
                 task.write(
                     {
                         "employee_ids": employee_ids,
-                        "stage_id": self.env.ref("metallurgy.project_task_stage_in_progress").id,
+                        "stage_id": self.env.ref("custom_project.project_task_stage_in_progress").id,
                         "actual_start_time": actual_time,
                         "actual_end_time": actual_time,
                     }
@@ -183,7 +183,7 @@ class ProjectTask(models.Model):
         if not previous_task:
             return False
 
-        completed_stage = self.env.ref("metallurgy.project_task_stage_completed")
+        completed_stage = self.env.ref("custom_project.project_task_stage_completed")
         return previous_task.stage_id == completed_stage
 
     def _find_previous_shift_task(self, current_task):
@@ -256,9 +256,9 @@ class ProjectTask(models.Model):
     def _onchange_stage_id(self):
         """Обработка изменения stage_id в UI"""
         if self.stage_id:
-            stage_in_progress = self.env.ref("metallurgy.project_task_stage_in_progress", False)
-            stage_completed = self.env.ref("metallurgy.project_task_stage_completed", False)
-            stage_planned = self.env.ref("metallurgy.project_task_stage_planned", False)
+            stage_in_progress = self.env.ref("custom_project.project_task_stage_in_progress", False)
+            stage_completed = self.env.ref("custom_project.project_task_stage_completed", False)
+            stage_planned = self.env.ref("custom_project.project_task_stage_planned", False)
 
             current_stage = self.stage_id
             now = fields.Datetime.now()
