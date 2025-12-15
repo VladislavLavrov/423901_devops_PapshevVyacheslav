@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Основные техпроцессы -->
+        <record id="task_type_melting" model="project.task.type.custom">
+            <field name="name">Плавка металла</field>
+            <field name="process_type">main</field>
+            <field name="category">melting</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="task_type_casting" model="project.task.type.custom">
+            <field name="name">Разливка</field>
+            <field name="process_type">main</field>
+            <field name="category">casting</field>
+            <field name="sequence">20</field>
+        </record>Z
+
+        <record id="task_type_rolling" model="project.task.type.custom">
+            <field name="name">Прокатка</field>
+            <field name="process_type">main</field>
+            <field name="category">rolling</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="task_type_forging" model="project.task.type.custom">
+            <field name="name">Ковка</field>
+            <field name="process_type">main</field>
+            <field name="category">forging</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="task_type_heat_treatment" model="project.task.type.custom">
+            <field name="name">Термообработка</field>
+            <field name="process_type">main</field>
+            <field name="category">treatment</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="task_type_quality_check" model="project.task.type.custom">
+            <field name="name">Контроль качества</field>
+            <field name="process_type">main</field>
+            <field name="category">inspection</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- Вспомогательные работы -->
+        <record id="task_type_equipment_prep" model="project.task.type.custom">
+            <field name="name">Подготовка оборудования</field>
+            <field name="process_type">parallel</field>
+            <field name="category">preparation</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <record id="task_type_material_supply" model="project.task.type.custom">
+            <field name="name">Подача сырья</field>
+            <field name="process_type">parallel</field>
+            <field name="category">supply</field>
+            <field name="sequence">120</field>
+        </record>
+
+        <record id="task_type_waste_removal" model="project.task.type.custom">
+            <field name="name">Уборка отходов</field>
+            <field name="process_type">parallel</field>
+            <field name="category">cleaning</field>
+            <field name="sequence">130</field>
+        </record>
+
+        <record id="task_type_lubrication" model="project.task.type.custom">
+            <field name="name">Смазка оборудования</field>
+            <field name="process_type">parallel</field>
+            <field name="category">maintenance</field>
+            <field name="sequence">140</field>
+        </record>
+
+        <!-- Техническое обслуживание -->
+        <record id="task_type_equipment_check" model="project.task.type.custom">
+            <field name="name">Осмотр оборудования</field>
+            <field name="process_type">maintenance</field>
+            <field name="category">inspection</field>
+            <field name="sequence">200</field>
+        </record>
+
+        <record id="task_type_repair_work" model="project.task.type.custom">
+            <field name="name">Ремонтные работы</field>
+            <field name="process_type">maintenance</field>
+            <field name="category">repair</field>
+            <field name="sequence">210</field>
+        </record>
+
+        <!-- ШАБЛОНЫ ОСНОВНОГО ТЕХПРОЦЕССА -->
+        
+        <!-- Смена 1 (Утренняя) -->
+        <record id="schedule_main_1_morning" model="task.schedule.template">
+            <field name="process_type">main</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_morning"/>
+            <field name="task_type_id" ref="task_type_equipment_prep"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="schedule_main_1_morning_melt" model="task.schedule.template">
+            <field name="process_type">main</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_morning"/>
+            <field name="task_type_id" ref="task_type_melting"/>
+            <field name="sequence">11</field>
+        </record>
+
+        <!-- Смена 2 (Дневная) -->
+        <record id="schedule_main_1_day" model="task.schedule.template">
+            <field name="process_type">main</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_day"/>
+            <field name="task_type_id" ref="task_type_casting"/>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="schedule_main_1_day_quality" model="task.schedule.template">
+            <field name="process_type">main</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_day"/>
+            <field name="task_type_id" ref="task_type_quality_check"/>
+            <field name="sequence">21</field>
+        </record>
+
+        <!-- Смена 3 (Ночная) -->
+        <record id="schedule_main_1_night" model="task.schedule.template">
+            <field name="process_type">main</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_night"/>
+            <field name="task_type_id" ref="task_type_rolling"/>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Вспомогательные работы (параллельно) -->
+        <record id="schedule_parallel_1_morning" model="task.schedule.template">
+            <field name="process_type">parallel</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_morning"/>
+            <field name="task_type_id" ref="task_type_material_supply"/>
+            <field name="sequence">110</field>
+        </record>
+
+        <record id="schedule_parallel_1_day" model="task.schedule.template">
+            <field name="process_type">parallel</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_day"/>
+            <field name="task_type_id" ref="task_type_lubrication"/>
+            <field name="sequence">120</field>
+        </record>
+
+        <record id="schedule_parallel_1_night" model="task.schedule.template">
+            <field name="process_type">parallel</field>
+            <field name="day_number">1</field>
+            <field name="shift" ref="shift_night"/>
+            <field name="task_type_id" ref="task_type_waste_removal"/>
+            <field name="sequence">130</field>
+        </record>
+    </data>
+</odoo>

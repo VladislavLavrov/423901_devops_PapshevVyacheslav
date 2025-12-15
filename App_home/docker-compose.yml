@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    volumes:
+      - postgres-data-new:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  odoo:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-data-new:/var/lib/odoo
+      - ./odoo-config:/etc/odoo
+    environment:
+      - HOST=postgres
+      - USER=odoo
+      - PASSWORD=odoo
+      - PROXY_MODE=True
+      - WITHOUT_DEMO=True
+      # - DEFAULT_DATABASE=testdatabase
+      - PROXY_PROTOCOL_HEADER=X-Forwarded-Proto
+      - PROXY_REAL_IP_HEADER=X-Real-IP
+      - PROXY_REAL_IP_HEADER_1=X-Forwarded-For
+      - PROXY_REAL_IP_HEADER_2=X-Real-IP
+    restart: unless-stopped
+    networks:
+      - app-network
+
+ 
+
+
+
+volumes:
+  postgres-data-new:
+  odoo-data-new:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,3 +1,19 @@
 {
-    "python.languageServer": "None"
+    "python.analysis.extraPaths": [
+        "../odoo"
+    ],
+    "python.autoComplete.extraPaths":[
+        "../odoo"
+    ],
+    "python.analysis.typeCheckingMode":"standard",
+    "python.languageServer": "None",
+    "editor.quickSuggestions": {
+        "other": "on",
+        "comments": "off",
+        "strings": "on"
+    },
+    "files.exclude": {
+        "**/*.pyc": true, 
+        "**/__pycache__": true
+    }
 }
