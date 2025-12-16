@@ -57,7 +57,7 @@ class ProjectTask(models.Model):
     date_start = fields.Datetime(
         string="Дата начала", required=True, default=fields.Datetime.now
     )
-
+    
     shift = fields.Many2one(
         "custom_project.shift", string="Смена"
     )

@@ -140,6 +140,7 @@ class TaskSchedule(models.Model):
                     "process_type": template.process_type,
                     "shift": shift.id,
                     "date_start": task_start,
+                    "date_deadline": task_start + timedelta(hours=1),
                     "custom_task_type_id": template.task_type_id.id,
                     "planning_series_datetime": fields.Datetime.now(),
                     "shift_number": str(i + int(self.start_shift)),
