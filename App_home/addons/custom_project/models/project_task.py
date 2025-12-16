@@ -62,8 +62,10 @@ class ProjectTask(models.Model):
         "custom_project.shift", string="Смена"
     )
 
-    shift_code = fields.Char(
-        related="shift.code", string="Код смены"
+    shift_code = fields.Selection(
+        related="shift.code",
+        string="Код смены",
+        readonly=True
     )
 
     shift_color = fields.Integer(string="Цвет смены", compute="_compute_shift_color")
@@ -71,7 +73,7 @@ class ProjectTask(models.Model):
     production_cycle = fields.Char(string="Производственный цикл", compute="_compute_production_cycle")
 
     custom_task_type_id = fields.Many2one(
-        "project.task.type.custom", string="Тип работы"
+        "project.task.type", string="Тип работы"
     )
 
     actual_start_time = fields.Datetime(string="Фактическое время начала")

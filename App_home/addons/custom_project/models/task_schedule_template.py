@@ -31,11 +31,11 @@ class TaskScheduleTemplate(models.Model):
     day_number = fields.Integer(string="День плана", required=True)
 
     shift = fields.Many2one(
-        "metallurgy.shift", string="Смена", required=True
+        "custom_project.shift", string="Смена", required=True
     )
 
     task_type_id = fields.Many2one(
-        "project.task.type.custom", string="Тип работы", required=True
+        "project.task.type", string="Тип работы", required=True
     )
 
     active = fields.Boolean(string="Активно", default=True)

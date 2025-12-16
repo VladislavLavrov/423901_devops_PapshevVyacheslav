@@ -35,6 +35,7 @@ class TaskSchedule(models.Model):
         [
             ("main", "Основной техпроцесс"),
             ("parallel", "Вспомогательные работы"),
+            ("both", "Оба")
         ],
         string="Тип процесса",
         required=True,
@@ -126,7 +127,7 @@ class TaskSchedule(models.Model):
                     hour=shift.start_hour, minute=0, second=0, microsecond=0
                 )
             else:
-                task_start = current_datetime + timedelta(hours=8 * i)
+                task_start = current_datetime + timedelta(hours=8 * i) if current_datetime else timedelta(hours=8 * i)
 
             # Для ночной смены, начинающейся в 22:00, следующий день начинается утром
             # Но для простоты оставим линейное приращение

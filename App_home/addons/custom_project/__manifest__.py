@@ -9,9 +9,12 @@
         Модуль адаптирует функционал модуля project под нужды металлургического комбината
     """,
     'data': [
+        'security/ir.model.access.csv',
         'views/project_calendar_views.xml',
         'data/shedule_data.xml',
-        'data/shifts.xml'
+        'data/shifts.xml',
+        'data/stages.xml',
+        'wizard/task_series_wizard.xml'
     ],
     'assets': {
         'web.assets_backend': [

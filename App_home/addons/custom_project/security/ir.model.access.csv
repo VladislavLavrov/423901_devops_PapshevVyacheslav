@@ -1,4 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_task_series_wizard,wizard.project.task.series.wizard,model_project_task_series_wizard,base.group_user,1,0,1,0
-access_metallurgy_shift,metallurgy.shift,model_metallurgy_shift,base.group_user,1,1,1,1
+access_metallurgy_shift,metallurgy.shift,model_custom_project_shift,base.group_user,1,1,1,1
 access_quality_control,quality.control,model_quality_control,base.group_user,1,1,1,1
