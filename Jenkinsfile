@@ -9,13 +9,18 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'ls -l'
-                sh 'docker compose build'
+                dir('App_home') {
+                    sh 'ls -l'
+                    sh 'docker compose build'
+                }
             }
+            
         }
 		stage('Start Docker Container') {
             steps {
-                sh 'docker compose up -d'
+                dir('App_home') {
+                    sh 'docker compose up -d'
+                }
             }
         }
     }
