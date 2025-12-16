@@ -50,15 +50,9 @@ export class CustomProjectCalendarController extends CalendarController {
     
 
     async onCustomCalendarButtonClick() {
-        await this.actionService.doAction({
-            type: 'ir.actions.act_window',
-            res_model: 'project.task',
-            views: [[false, 'form']],
-            target: 'new',
-            context: {
-                ...this.env.searchModel.context,
-            },
-        });
+        // Получаем XML ID действия визарда из вашего модуля
+        const action = await this.actionService.loadAction("custom_project.action_task_series_wizard");
+        await this.actionService.doAction(action);
     }
 
     addButtonToCalendarButtons(attemptCount = 1) {

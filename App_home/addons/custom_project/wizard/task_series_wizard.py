@@ -27,14 +27,14 @@ class TaskSeriesWizard(models.TransientModel):
     )
 
     start_shift_number = fields.Selection(
-        [(str(i), str(i)) for i in range(1, 9)],
+        [(str(i), str(i)) for i in range(1, 4)],
         string="Начать с смены №",
         required=True,
         default="1",
     )
     
     shift_count = fields.Selection(
-        [(str(i), str(i)) for i in range(1, 9)],
+        [(str(i), str(i)) for i in range(1, 4)],
         string="Количество смен",
         required=True,
         default="1",

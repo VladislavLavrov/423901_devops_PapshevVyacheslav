@@ -3,6 +3,8 @@ global:
   evaluation_interval: 15s
   external_labels:
     monitor: 'aspnetcore-monitor'
+  # static_configs:
+  #   - targets: ["host.docker.internal:5010"]
 
 # Правила алертинга
 rule_files:
@@ -12,11 +14,11 @@ rule_files:
 scrape_configs:
   # 1. ASP.NET Core приложение
   - job_name: 'aspnetcore-calculator'
-    scrape_interval: 10s
+    scrape_interval: 5s
     scrape_timeout: 5s
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['calculator-app:80']
+      - targets: ['calculator-app:5010']
         labels:
           app: 'calculator'
           environment: 'development'
@@ -25,7 +27,7 @@ scrape_configs:
   # 2. Prometheus сам себя
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
         labels:
           service: 'prometheus'
 

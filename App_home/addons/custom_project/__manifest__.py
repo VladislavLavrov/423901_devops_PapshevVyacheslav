@@ -10,10 +10,11 @@
     """,
     'data': [
         'security/ir.model.access.csv',
-        'views/project_calendar_views.xml',
-        'data/shedule_data.xml',
         'data/shifts.xml',
         'data/stages.xml',
+        
+        'views/project_calendar_views.xml',
+        'data/shedule_data.xml',
         'wizard/task_series_wizard.xml'
     ],
     'assets': {
