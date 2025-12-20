@@ -14,7 +14,7 @@
         'data/stages.xml',
         
         'views/project_calendar_views.xml',
-        'views/configuration_menu.xml',
+        # 'views/configuration_menu.xml',
         'data/shedule_data.xml',
         'wizard/task_series_wizard.xml'
     ],
