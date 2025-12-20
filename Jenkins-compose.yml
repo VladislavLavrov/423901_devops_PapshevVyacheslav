@@ -4,7 +4,9 @@ services:
   jenkins:
     build:
       context: .
+    user: root
     container_name: jenkins
+    
     ports:
       - "8080:8080"   # Веб-интерфейс Jenkins
       - "50000:50000" # Для подключения агентов (не обязательно для локального использования)
