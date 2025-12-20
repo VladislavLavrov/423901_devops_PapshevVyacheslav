@@ -50,12 +50,6 @@ networks:
     driver: bridge
  
 
-
-
 volumes:
   postgres-data-new:
   odoo-data-new:
-
-networks:
-  app-network:
-    driver: bridge
