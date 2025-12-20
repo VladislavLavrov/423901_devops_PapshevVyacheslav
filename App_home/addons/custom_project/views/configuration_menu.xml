@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="custom_project_view_form" model="ir.ui.view">
+        <field name="name">custom_project.view.form</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <form string="Задача">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="process_type" />
+                        <field name="shift_number" />
+                        <field name="date_start" />
+                        <field name="quality_status" />
+                        <field name="has_quality_control" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="custom_project_view_tree" model="ir.ui.view">
+        <field name="name">custom_project.view.tree</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <tree string="">
+                <field name="name" />
+                <field name="process_type" />
+                <field name="shift_number" />
+                <field name="date_start" />
+                <field name="quality_status" />
+                <field name="has_quality_control" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="custom_project_shedule_templates_view_form" model="ir.ui.view">
+        <field name="name">custom_project.shedule.templates.view.form</field>
+        <field name="model">task.schedule.template</field>
+        <field name="arch" type="xml">
+            <form string="Задача">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="process_type" />
+                        <field name="day_number" />
+                        <field name="shift" />
+                        <field name="active" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="custom_project_shedule_templates_view_tree" model="ir.ui.view">
+        <field name="name">custom_project.shedule.templates.view.tree</field>
+        <field name="model">task.schedule.template</field>
+        <field name="arch" type="xml">
+            <tree string="">
+                <field name="name" />
+                <field name="process_type" />
+                <field name="day_number" />
+                <field name="shift" />
+                <field name="active" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="custom_project_shedule_view_form" model="ir.ui.view">
+        <field name="name">custom_project.shedule.view.form</field>
+        <field name="model">task.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Задача">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="project_id" />
+                        <field name="start_shift" />
+                        <field name="shift_count" />
+                        <field name="equipment_maintenance_days" />
+                        <field name="process_type" />
+                        <field name="date_start" />
+                        <field name="project_task_ids" widget="one2many"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="custom_project_shedule_view_tree" model="ir.ui.view">
+        <field name="name">custom_project.shedule.view.tree</field>
+        <field name="model">task.schedule</field>
+        <field name="arch" type="xml">
+            <tree string="">
+                <field name="name" />
+                <field name="project_id" />
+                <field name="start_shift" />
+                <field name="shift_count" />
+                <field name="equipment_maintenance_days" />
+                <field name="process_type" />
+                <field name="date_start" />
+                <field name="project_task_ids"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_project_tasks" model="ir.actions.act_window">
+        <field name="name">Все задачи</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
+    <record id="action_task_schedule_templates" model="ir.actions.act_window">
+        <field name="name">Все шаблоны расписаний</field>
+        <field name="res_model">task.schedule.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
+    <record id="action_task_schedules" model="ir.actions.act_window">
+        <field name="name">Все расписания</field>
+        <field name="res_model">task.schedule</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
+    <menuitem id="menu_project_configuration_poultry_root" parent="project.menu_project_config"
+        name="Прочее"
+        sequence="10"/>
+
+
+    <menuitem id="menu_project_tasks" name="Задачи"
+            parent="menu_project_configuration_poultry_root"
+            action="action_project_tasks" sequence="10"/>
+
+
+    <menuitem id="menu_task_schedule" name="Расписания"
+            parent="menu_project_configuration_poultry_root"
+            action="action_task_schedule_templates" sequence="20"/>
+
+
+    <menuitem id="menu_task_schedule_templates" name="Шаблоны расписаний"
+            parent="menu_project_configuration_poultry_root"
+            action="action_task_schedules" sequence="30"/>
+
+</odoo>

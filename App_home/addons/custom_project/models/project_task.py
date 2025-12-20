@@ -45,7 +45,7 @@ class ProjectTask(models.Model):
     )
 
     shift_number = fields.Selection(
-        [(str(i), str(i)) for i in range(1, 9)], string="Номер смены"
+        [(str(i), str(i)) for i in range(1, 3)], string="Номер смены"
     )
 
     maintenance_day = fields.Integer(string="День ТО оборудования")
