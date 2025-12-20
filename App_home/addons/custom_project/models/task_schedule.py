@@ -21,7 +21,7 @@ class TaskSchedule(models.Model):
     )
 
     shift_count = fields.Selection(
-        [(str(i), str(i)) for i in range(1, 9)],
+        [(str(i), str(i)) for i in range(1, 3)],
         string="Количество смен для планирования",
         required=True,
         default="1",

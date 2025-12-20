@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <record id="action_project_tasks" model="ir.actions.act_window">
+        <field name="name">Все задачи</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
+    <record id="action_task_schedule_templates" model="ir.actions.act_window">
+        <field name="name">Все шаблоны расписаний</field>
+        <field name="res_model">task.schedule.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
+    <record id="action_task_schedules" model="ir.actions.act_window">
+        <field name="name">Все расписания</field>
+        <field name="res_model">task.schedule</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            
+        </field>
+    </record>
+
     <!-- Форма задачи — адаптация под металлургию -->
     <record id="view_task_form2_inherit" model="ir.ui.view">
         <field name="name">project.task.form.inherit.metallurgy</field>
@@ -62,5 +95,24 @@
             </xpath>
         </field>
     </record>
+
+    <menuitem id="menu_project_configuration_poultry_root" parent="project.menu_project_config"
+              name="Прочее"
+              sequence="10"/>
+
+
+    <menuitem id="menu_project_tasks" name="Задачи"
+              parent="menu_project_configuration_poultry_root"
+              action="action_project_tasks" sequence="10"/>
+
+
+    <menuitem id="menu_task_schedule" name="Расписания"
+              parent="menu_project_configuration_poultry_root"
+              action="action_task_schedule_templates" sequence="20"/>
+
+
+        <menuitem id="menu_task_schedule_templates" name="Шаблоны расписаний"
+              parent="menu_project_configuration_poultry_root"
+              action="action_task_schedules" sequence="30"/>
 
 </odoo>
