@@ -7,7 +7,7 @@ RUN mkdir -p /mnt/extra-addons \
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN pip install --default-timeout=1000 --retries=5 -r requirements.txt
 
 COPY /addons /mnt/extra-addons
 
